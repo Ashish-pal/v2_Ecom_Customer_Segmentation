@@ -264,8 +264,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 from sklearn.model_selection import KFold
 def k_fold_validation(model, X, y, n_splits=5):
-    # Convert pandas Series to numpy arrays for compatibility with KFold
-    X = X.to_numpy().reshape(-1, 1)  # Reshape to 2D array as most sklearn models expect it
+
+    X = X.to_numpy().reshape(-1, 1)
     y = y.to_numpy()
 
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=0)
@@ -273,7 +273,7 @@ def k_fold_validation(model, X, y, n_splits=5):
     mse_scores = []
 
     for train_index, test_index in kf.split(X):
-        # Access the data using the indices directly since X and y are already part of the DataFrame
+
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
 
@@ -311,74 +311,4 @@ svm = SVR()
 svm_r2, svm_mse = k_fold_validation(svm, X, y, n_splits=3)
 print(f"SVM Regression - Mean R2-Score: {svm_r2}")
 print(f"SVM Regression - Mean MSE: {svm_mse}")
-
-"""###KFold Cross Validation with Prediction for the Overall Analysis"""
-
-X = dataset[['Gender', 'Orders']]
-y = dataset['Orders']
-
-print("Features and Target:")
-print(X)
-print(y)
-
-from sklearn.preprocessing import LabelEncoder
-label_encoder = LabelEncoder()
-dataset['Gender'] = label_encoder.fit_transform(dataset['Gender'])
-
-from sklearn.model_selection import KFold
-def k_fold_validation(model, X, y, n_splits=5):
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=0)
-    r2_scores = []
-    mse_scores = []
-
-    for train_index, test_index in kf.split(X):
-        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-
-        X_train = X_train.values.reshape(-1, 1)
-        X_test = X_test.values.reshape(-1, 1)
-
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-
-        r2_scores.append(r2_score(y_test, y_pred))
-        mse_scores.append(mean_squared_error(y_test, y_pred))
-
-    return np.mean(r2_scores), np.mean(mse_scores)
-
-
-lr = LinearRegression()
-lr_r2, lr_mse = k_fold_validation(lr, X, y, n_splits=5)
-print(f"Linear Regression - Mean R2-Score: {lr_r2}")
-print(f"Linear Regression - Mean MSE: {lr_mse} \n")
-
-
-dt_regressor = DecisionTreeRegressor(random_state=0)
-dt_r2, dt_mse = k_fold_validation(dt_regressor, X, y, n_splits=5)
-print(f"Decision Tree Regression - Mean R2-Score: {dt_r2}")
-print(f"Decision Tree Regression - Mean MSE: {dt_mse} \n")
-
-
-rf_regressor = RandomForestRegressor(random_state=0)
-rf_r2, rf_mse = k_fold_validation(rf_regressor, X, y, n_splits=5)
-print(f"Random Forest Regression - Mean R2-Score: {rf_r2}")
-print(f"Random Forest Regression - Mean MSE: {rf_mse} \n")
-
-
-svm = SVR()
-svm_r2, svm_mse = k_fold_validation(svm, X, y, n_splits=5)
-print(f"SVM Regression - Mean R2-Score: {svm_r2}")
-print(f"SVM Regression - Mean MSE: {svm_mse} \n")
-
-
-kmeans_pca = KMeans()
-kmeans_pca_r2, kmeans_pca_mse = k_fold_validation(kmeans_pca, X, y, n_splits=5)
-print(f"Kmeans with PCA - Mean R2-Score: {svm_r2}")
-print(f"Kmeans with PCA - Mean MSE: {svm_mse} \n")
-
-
-kmeans_wpca = KMeans()
-kmeans_wpca_r2, kmeans_wpca_mse = k_fold_validation(kmeans_wpca, X, y, n_splits=5)
-print(f"Kmeans without PCA - Mean R2-Score: {svm_r2}")
-print(f"Kmeans without PCA - Mean MSE: {svm_mse}")
 
